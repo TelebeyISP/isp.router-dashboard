@@ -14,6 +14,10 @@ Captured from a live run of this dashboard talking to a local ApiGate instance (
 
 ![SIM management](docs/assets/screenshots/04-subscribers.png)
 
+![Data plans](docs/assets/screenshots/05-profiles.png)
+
+![Accounts and security](docs/assets/screenshots/06-accounts.png)
+
 ## Demo video
 
 <video src="docs/assets/screenshots/router-dashboard-demo.mp4" controls width="800"></video>

@@ -3,20 +3,19 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import axios from 'axios';
-import * as subscriberActions from 'modules/crud/subscriber';
-import * as profileActions from 'modules/crud/profile';
-import * as accountActions from 'modules/crud/account';
+import { fetchSubscribers } from 'modules/crud/subscriber';
+import { fetchProfiles } from 'modules/crud/profile';
+import { fetchAccounts } from 'modules/crud/account';
+import { select } from 'modules/crud/selectors';
 import * as sidebarActions from 'modules/sidebar';
 import Session from 'modules/auth/session';
 
 class OverviewContainer extends Component {
   static propTypes = {
-    subscribers: PropTypes.array,
-    profiles: PropTypes.array,
-    accounts: PropTypes.array,
-    SubscriberActions: PropTypes.object,
-    ProfileActions: PropTypes.object,
-    AccountActions: PropTypes.object,
+    subscribers: PropTypes.object,
+    profiles: PropTypes.object,
+    accounts: PropTypes.object,
+    dispatch: PropTypes.func,
     SidebarActions: PropTypes.object
   };
 
@@ -24,10 +23,21 @@ class OverviewContainer extends Component {
     apigate: null
   };
 
+  fetchCollections(props) {
+    const { subscribers, profiles, accounts, dispatch } = props;
+    if (subscribers && subscribers.needsFetch) {
+      dispatch(subscribers.fetch);
+    }
+    if (profiles && profiles.needsFetch) {
+      dispatch(profiles.fetch);
+    }
+    if (accounts && accounts.needsFetch) {
+      dispatch(accounts.fetch);
+    }
+  }
+
   componentDidMount() {
-    this.props.SubscriberActions.list({});
-    this.props.ProfileActions.list({});
-    this.props.AccountActions.list({});
+    this.fetchCollections(this.props);
 
     const sessionData = new Session();
     const csrf = ((sessionData || {}).session || {}).csrfToken;
@@ -41,12 +51,16 @@ class OverviewContainer extends Component {
       .catch(() => this.setState({ apigate: { connected: false } }));
   }
 
+  componentWillReceiveProps(nextProps) {
+    this.fetchCollections(nextProps);
+  }
+
   render() {
     const { subscribers, profiles, accounts, SidebarActions } = this.props;
 
-    const totalSubscribers = subscribers ? subscribers.length : 0;
-    const totalProfiles = profiles ? profiles.length : 0;
-    const totalAccounts = accounts ? accounts.length : 0;
+    const totalSubscribers = subscribers && subscribers.data ? subscribers.data.length : 0;
+    const totalProfiles = profiles && profiles.data ? profiles.data.length : 0;
+    const totalAccounts = accounts && accounts.data ? accounts.data.length : 0;
     const apigate = this.state.apigate;
     const apigateConnected = !!(apigate && apigate.connected);
 
@@ -238,14 +252,12 @@ class OverviewContainer extends Component {
 
 export default connect(
   (state) => ({
-    subscribers: state.crud.subscriber.list.data,
-    profiles: state.crud.profile.list.data,
-    accounts: state.crud.account.list.data
+    subscribers: select(fetchSubscribers(), state.crud),
+    profiles: select(fetchProfiles(), state.crud),
+    accounts: select(fetchAccounts(), state.crud)
   }),
   (dispatch) => ({
-    SubscriberActions: bindActionCreators(subscriberActions, dispatch),
-    ProfileActions: bindActionCreators(profileActions, dispatch),
-    AccountActions: bindActionCreators(accountActions, dispatch),
+    dispatch,
     SidebarActions: bindActionCreators(sidebarActions, dispatch)
   })
 )(OverviewContainer);
