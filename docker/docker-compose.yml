@@ -22,6 +22,8 @@ services:
     environment:
       - DB_URI=mongodb://mongodb/open5gs
       - WAIT_HOSTS=mongodb:27017
+      - APIGATE_URL=${APIGATE_URL:-http://apigate:4000}
+      - HOSTNAME=0.0.0.0
 
   base:
     build:

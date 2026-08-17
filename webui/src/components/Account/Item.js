@@ -49,7 +49,7 @@ class Item extends Component {
               color: isSelf ? '#1e6fd9' : '#475569',
               display: 'flex',
               alignItems: 'center',
-              justify-content: 'center',
+              justifyContent: 'center',
               fontWeight: 700,
               fontSize: '1rem'
             }}>

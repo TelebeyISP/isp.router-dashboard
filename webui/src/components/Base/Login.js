@@ -22,7 +22,7 @@ const Login = ({
     <Head>
       <title>Telebey Open5GS - Sign In</title>
     </Head>
-    <div style={{ width: '100%', maxWidth: '24rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+        <div style={{ width: '100%', maxWidth: '24rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }} id="nprogress-base-login">
       
       {/* Brand Header */}
       <div style={{ textAlign: 'center' }}>
@@ -34,7 +34,7 @@ const Login = ({
           color: '#ffffff',
           display: 'inline-flex',
           alignItems: 'center',
-          justify-content: 'center',
+          justifyContent: 'center',
           boxShadow: '0 10px 20px rgba(30, 111, 217, 0.25)',
           marginBottom: '0.75rem'
         }}>

@@ -1,6 +1,7 @@
 const express = require('express');
 const auth = require('./auth');
-const db = require('./db')
+const db = require('./db');
+const apigate = require('./apigate');
 
 const router = express.Router();
 
@@ -26,7 +27,15 @@ passport.use(
   )
 );
 
+function requireUser(req, res, next) {
+  if (req.user) {
+    return next();
+  }
+  return passport.authenticate('jwt', { session: false })(req, res, next);
+}
+
 router.use('/auth', auth);
 router.use('/db', passport.authenticate('jwt', { session: false }), db);
+router.use('/apigate', requireUser, apigate);
 
 module.exports = router;

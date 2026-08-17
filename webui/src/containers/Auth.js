@@ -29,7 +29,9 @@ class Auth extends Component {
       session: await session.getSession(true)
     });
 
-    this.input.focus();
+    if (this.input && this.input.focus) {
+      this.input.focus();
+    }
   }
 
   setInnerRef = (comp) => {
@@ -62,7 +64,7 @@ class Auth extends Component {
     } = this.props;
 
     NProgress.configure({ 
-      parent: '#nprogress-base-login',
+      parent: 'body',
       trickleSpeed: 5
     });
     NProgress.start();

@@ -1,34 +1,100 @@
-<p align="center"><a href="https://open5gs.org" target="_blank" rel="noopener noreferrer"><img width="100" src="https://open5gs.org/assets/img/open5gs-logo-only.png" alt="Open5GS logo"></a></p>
+# Telebey Open5GS Router Dashboard
 
-## Getting Started
+Administration UI for the Telebey Open5GS 4G/5G core. It manages subscribers (IMSI / K / OPc), APN data profiles, and WebUI accounts, and it connects northbound to **[ApiGate](https://github.com/TelebeyISP/ApiGate.git)** — the Telebey MVNO API for commercial plans, SIM lifecycle, and GSMA gateway services.
 
-Please follow the [documentation](https://open5gs.org/open5gs/docs/) at [open5gs.org](https://open5gs.org/)!
+## Screenshots
 
-## Sponsors
+Captured from a live run of this dashboard talking to a local ApiGate instance (`GET /health` + `GET /plans`).
 
-If you find Open5GS useful for work, please consider supporting this Open Source project by [Becoming a sponsor](https://github.com/sponsors/acetcom). To manage the funding transactions transparently, you can donate through [OpenCollective](https://opencollective.com/open5gs).
+![Sign in](docs/assets/screenshots/01-login.png)
 
-<p align="center">
-  <a target="_blank" href="https://open5gs.org/#sponsors">
-      <img alt="sponsors" src="https://open5gs.org/assets/img/sponsors.svg">
-  </a>
-</p>
+![Network overview with ApiGate status](docs/assets/screenshots/02-overview.png)
 
-## Community
+![ApiGate gateway page](docs/assets/screenshots/03-apigate.png)
 
-- Problem with Open5GS can be filed as [issues](https://github.com/open5gs/open5gs/issues) in this repository.
-- Other topics related to this project are happening on the [discussions](https://github.com/open5gs/open5gs/discussions).
-- Voice and text chat are available in Open5GS's [Discord](https://discordapp.com/) workspace. Use [this link](https://discord.gg/GreNkuc) to get started.
+![SIM management](docs/assets/screenshots/04-subscribers.png)
 
-## Contributing
+![Data plans](docs/assets/screenshots/05-profiles.png)
 
-If you're contributing through a pull request to Open5GS project on GitHub, please read the [Contributor License Agreement](https://open5gs.org/open5gs/cla/) in advance.
+![Accounts and security](docs/assets/screenshots/06-accounts.png)
+
+## Demo video
+
+<video src="docs/assets/screenshots/router-dashboard-demo.mp4" controls width="800"></video>
+
+If the embedded player is unavailable, download [router-dashboard-demo.mp4](docs/assets/screenshots/router-dashboard-demo.mp4).
+
+## Quick start (WebUI)
+
+Development defaults:
+
+- URL: `http://localhost:9999`
+- Username: `admin`
+- Password: `1423`
+
+```bash
+# MongoDB must be reachable at mongodb://127.0.0.1:27017/open5gs
+cd webui
+cp .env.example .env   # optional
+npm install
+npm run dev
+```
+
+The dashboard binds to `0.0.0.0:9999` by default and probes ApiGate at `http://127.0.0.1:4000`.
+
+## Connect to ApiGate
+
+Clone and run [TelebeyISP/ApiGate](https://github.com/TelebeyISP/ApiGate.git) next to this repository (or point `APIGATE_URL` at an existing instance).
+
+```bash
+git clone https://github.com/TelebeyISP/ApiGate.git ../ApiGate
+```
+
+The WebUI does **not** call ApiGate from the browser (CORS is not required). The Node server proxies:
+
+| Dashboard route | Upstream ApiGate |
+| --- | --- |
+| `GET /api/apigate/health` | `GET /health` |
+| `GET /api/apigate/plans` | `GET /plans` |
+| `GET /api/apigate/status` | health + plans + optional `/auth/me` and `/sim` |
+
+Environment variables (see `webui/.env.example`):
+
+| Variable | Default | Purpose |
+| --- | --- | --- |
+| `APIGATE_URL` | `http://127.0.0.1:4000` | ApiGate base URL |
+| `APIGATE_TIMEOUT_MS` | `4000` | Upstream timeout |
+| `APIGATE_EMAIL` / `APIGATE_PASSWORD` | unset | Optional service login to list SIMs |
+| `APIGATE_TOKEN` | unset | Optional bearer token instead of login |
+| `OPEN5GS_MONGODB_URI` (ApiGate) | `mongodb://mongo:27017/nextgepc` | Set this to the same Open5GS DB as the dashboard (`mongodb://mongodb:27017/open5gs` in Compose) |
+
+The **ApiGate** sidebar view shows gateway health, latency, advertised data plans, and (when service auth is configured) SIMs owned by the service account. Swagger lives at `$APIGATE_URL/api/docs`.
+
+### Docker Compose (dashboard + ApiGate)
+
+```bash
+git clone https://github.com/TelebeyISP/ApiGate.git ../ApiGate
+export APIGATE_PATH=../ApiGate
+docker compose -f docker-compose.apigate.yml up --build
+```
+
+- Dashboard: http://localhost:9999
+- ApiGate health: http://localhost:4000/health
+- ApiGate Swagger: http://localhost:4000/api/docs
+
+## Tests
+
+```bash
+cd webui
+npm run test:apigate
+```
+
+This checks the ApiGate client against a local fixture server and against an unreachable URL.
+
+## Open5GS core
+
+The rest of this tree is Open5GS. Follow the [Open5GS documentation](https://open5gs.org/open5gs/docs/) to build and run AMF, SMF, UPF, and the other network functions. The WebUI reads and writes the Open5GS MongoDB subscriber database used by HSS/UDR.
 
 ## License
 
-- Open5GS Open Source files are made available under the terms of the GNU Affero General Public License ([GNU AGPL v3.0](https://www.gnu.org/licenses/agpl-3.0.html)).
-- [Commercial licenses](https://open5gs.org/open5gs/support/) are also available from [NewPlane](https://newplane.io/) at [sales@newplane.io](mailto:sales@newplane.io).
-
-## Support
-
-Technical support and customized services for Open5GS are provided by [NewPlane](https://newplane.io/) at [support@newplane.io](mailto:support@newplane.io).
+Open5GS sources are available under [GNU AGPL v3.0](LICENSE).

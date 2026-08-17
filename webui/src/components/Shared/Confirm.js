@@ -24,7 +24,7 @@ const Confirm = ({ visible, onOutside, message, buttons }) => {
               color: '#dc2626',
               display: 'flex',
               alignItems: 'center',
-              justify-content: 'center',
+              justifyContent: 'center',
               flexShrink: 0
             }}>
               <svg style={{ width: '1.25rem', height: '1.25rem' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">

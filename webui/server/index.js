@@ -1,6 +1,7 @@
 process.env.DB_URI = process.env.DB_URI || 'mongodb://127.0.0.1/open5gs';
+process.env.APIGATE_URL = process.env.APIGATE_URL || 'http://127.0.0.1:4000';
 
-const _hostname = process.env.HOSTNAME || 'localhost';
+const _hostname = process.env.HOSTNAME || '0.0.0.0';
 const port = process.env.PORT || 9999;
 
 const co = require('co');
@@ -30,8 +31,10 @@ const secret = process.env.SECRET_KEY;
 
 
 const api = require('./routes');
+const apigate = require('./apigate');
 
 const Account = require('./models/account.js');
+const seedDemoSubscriber = require('./seed-demo');
 
 co(function* () {
   yield app.prepare();
@@ -66,6 +69,7 @@ co(function* () {
         })
       }
     })
+    seedDemoSubscriber();
   }
 
   const server = express();
@@ -116,6 +120,14 @@ co(function* () {
   server.listen(port, _hostname, err => {
     if (err) throw err;
     console.log('> Ready on http://' + _hostname + ':' + port);
+    console.log('> ApiGate URL ' + apigate.baseURL());
+    apigate.health().then(function (result) {
+      if (result.ok) {
+        console.log('> ApiGate connected (' + result.latencyMs + ' ms)');
+      } else {
+        console.log('> ApiGate not reachable yet: ' + (result.error || ('HTTP ' + result.status)));
+      }
+    });
   });
 })
 .catch(error => console.error(error.stack));

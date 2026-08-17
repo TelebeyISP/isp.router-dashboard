@@ -166,6 +166,7 @@ h1, h2, h3, h4, h5, h6, .font-heading {
 .telebey-header-status {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 0.5rem;
   font-size: 0.85rem;
   color: #15803d;
@@ -482,6 +483,14 @@ h1, h2, h3, h4, h5, h6, .font-heading {
   background-color: #1e6fd9;
   border-radius: 9999px;
   transition: width 0.3s ease;
+}
+
+code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: 0.8rem;
+  background: #f1f5f9;
+  padding: 0.1rem 0.35rem;
+  border-radius: 0.25rem;
 }
 
 /* Modern Modal Overlay */
