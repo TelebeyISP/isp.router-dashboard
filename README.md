@@ -1,28 +1,50 @@
 # Telebey Open5GS Router Dashboard
 
-Administration UI for the Telebey Open5GS 4G/5G core. It manages subscribers (IMSI / K / OPc), APN data profiles, and WebUI accounts, and it connects northbound to **[ApiGate](https://github.com/TelebeyISP/ApiGate.git)** — the Telebey MVNO API for commercial plans, SIM lifecycle, and GSMA gateway services.
+<p align="center">
+  <img src="docs/assets/screenshots/02-overview.png" alt="Network Overview with ApiGate online" width="920">
+</p>
+
+Administration UI for the Telebey Open5GS 4G/5G core. It manages subscribers (IMSI / K / OPc), APN data profiles, and WebUI accounts, and it connects northbound to **[ApiGate](https://github.com/TelebeyISP/ApiGate.git)**.
 
 ## Screenshots
 
-Captured from a live run of this dashboard talking to a local ApiGate instance (`GET /health` + `GET /plans`).
+Live run against ApiGate (`GET /health` + `GET /plans`). Images are stored in this repo under [`docs/assets/screenshots/`](docs/assets/screenshots/).
 
-![Sign in](docs/assets/screenshots/01-login.png)
+<p align="center">
+  <img src="docs/assets/screenshots/01-login.png" alt="Sign in" width="920">
+</p>
 
-![Network overview with ApiGate status](docs/assets/screenshots/02-overview.png)
+<p align="center">
+  <img src="docs/assets/screenshots/03-apigate.png" alt="ApiGate gateway page — Online, 3 plans" width="920">
+</p>
 
-![ApiGate gateway page](docs/assets/screenshots/03-apigate.png)
+<p align="center">
+  <img src="docs/assets/screenshots/04-subscribers.png" alt="SIM management" width="920">
+</p>
 
-![SIM management](docs/assets/screenshots/04-subscribers.png)
+<p align="center">
+  <img src="docs/assets/screenshots/05-profiles.png" alt="Data plans" width="920">
+</p>
 
-![Data plans](docs/assets/screenshots/05-profiles.png)
+<p align="center">
+  <img src="docs/assets/screenshots/06-accounts.png" alt="Accounts and security" width="920">
+</p>
 
-![Accounts and security](docs/assets/screenshots/06-accounts.png)
+| Sign in | Overview | ApiGate |
+| :---: | :---: | :---: |
+| <img src="docs/assets/screenshots/01-login.png" alt="Login" width="280"> | <img src="docs/assets/screenshots/02-overview.png" alt="Overview" width="280"> | <img src="docs/assets/screenshots/03-apigate.png" alt="ApiGate" width="280"> |
+| **SIMs** | **Data plans** | **Accounts** |
+| <img src="docs/assets/screenshots/04-subscribers.png" alt="SIMs" width="280"> | <img src="docs/assets/screenshots/05-profiles.png" alt="Profiles" width="280"> | <img src="docs/assets/screenshots/06-accounts.png" alt="Accounts" width="280"> |
 
 ## Demo video
 
-<video src="docs/assets/screenshots/router-dashboard-demo.mp4" controls width="800"></video>
+GitHub README pages do not play `<video>` tags. Open the MP4 on GitHub:
 
-If the embedded player is unavailable, download [router-dashboard-demo.mp4](docs/assets/screenshots/router-dashboard-demo.mp4).
+**[▶ Watch router-dashboard-demo.mp4](https://github.com/TelebeyISP/isp.router-dashboard/blob/main/docs/assets/screenshots/router-dashboard-demo.mp4)**
+
+[![Demo video preview — ApiGate connected](docs/assets/screenshots/03-apigate.png)](https://github.com/TelebeyISP/isp.router-dashboard/blob/main/docs/assets/screenshots/router-dashboard-demo.mp4)
+
+Direct file: [docs/assets/screenshots/router-dashboard-demo.mp4](docs/assets/screenshots/router-dashboard-demo.mp4)
 
 ## Quick start (WebUI)
 
