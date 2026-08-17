@@ -6,6 +6,7 @@ import { bindActionCreators } from 'redux';
 
 import * as sidebarActions from 'modules/sidebar';
 
+import axios from 'axios';
 import Session from 'modules/auth/session';
 import { Header, Logout, Dimmed } from 'components';
 
@@ -14,8 +15,26 @@ class HeaderContainer extends Component {
     logout: {
       visible: false,
       dimmed: false
-    }
+    },
+    apigateConnected: false
   };
+
+  componentDidMount() {
+    const sessionData = new Session();
+    const csrf = ((sessionData || {}).session || {}).csrfToken;
+    const authToken = ((sessionData || {}).session || {}).authToken;
+    const headers = { 'X-CSRF-TOKEN': csrf };
+    if (authToken) {
+      headers.Authorization = 'Bearer ' + authToken;
+    }
+    axios.get('/api/apigate/status', { headers: headers })
+      .then((response) => {
+        this.setState({ apigateConnected: !!(response.data && response.data.connected) });
+      })
+      .catch(() => {
+        this.setState({ apigateConnected: false });
+      });
+  }
 
   logoutHandler = {
     show: () => {
@@ -69,6 +88,7 @@ class HeaderContainer extends Component {
         <Header 
           onSidebarToggle={handleSidebarToggle}
           onLogoutRequest={logoutHandler.show}
+          apigateConnected={this.state.apigateConnected}
         />
         <Logout 
           visible={logout.visible}

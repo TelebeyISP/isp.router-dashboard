@@ -2,10 +2,12 @@ import { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
+import axios from 'axios';
 import * as subscriberActions from 'modules/crud/subscriber';
 import * as profileActions from 'modules/crud/profile';
 import * as accountActions from 'modules/crud/account';
 import * as sidebarActions from 'modules/sidebar';
+import Session from 'modules/auth/session';
 
 class OverviewContainer extends Component {
   static propTypes = {
@@ -18,10 +20,25 @@ class OverviewContainer extends Component {
     SidebarActions: PropTypes.object
   };
 
+  state = {
+    apigate: null
+  };
+
   componentDidMount() {
     this.props.SubscriberActions.list({});
     this.props.ProfileActions.list({});
     this.props.AccountActions.list({});
+
+    const sessionData = new Session();
+    const csrf = ((sessionData || {}).session || {}).csrfToken;
+    const authToken = ((sessionData || {}).session || {}).authToken;
+    const headers = { 'X-CSRF-TOKEN': csrf };
+    if (authToken) {
+      headers.Authorization = 'Bearer ' + authToken;
+    }
+    axios.get('/api/apigate/status', { headers: headers })
+      .then((response) => this.setState({ apigate: response.data }))
+      .catch(() => this.setState({ apigate: { connected: false } }));
   }
 
   render() {
@@ -30,6 +47,8 @@ class OverviewContainer extends Component {
     const totalSubscribers = subscribers ? subscribers.length : 0;
     const totalProfiles = profiles ? profiles.length : 0;
     const totalAccounts = accounts ? accounts.length : 0;
+    const apigate = this.state.apigate;
+    const apigateConnected = !!(apigate && apigate.connected);
 
     return (
       <div>
@@ -93,6 +112,25 @@ class OverviewContainer extends Component {
             <div className="telebey-metric-value">{totalAccounts}</div>
             <div className="telebey-metric-subtext">Authorized WebUI Admins</div>
           </div>
+
+          <div className="telebey-metric-card">
+            <div className="telebey-metric-top">
+              <span>ApiGate Gateway</span>
+              <div className="telebey-metric-icon" style={{ backgroundColor: apigateConnected ? '#dcfce7' : '#fef3c7', color: apigateConnected ? '#16a34a' : '#b45309' }}>
+                <svg style={{ width: '1.25rem', height: '1.25rem' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+              </div>
+            </div>
+            <div className="telebey-metric-value" style={{ color: apigateConnected ? '#16a34a' : '#b45309' }}>
+              {apigate ? (apigateConnected ? 'Online' : 'Offline') : '…'}
+            </div>
+            <div className="telebey-metric-subtext">
+              {apigateConnected
+                ? `${(apigate.plans && apigate.plans.count) || 0} plans · ${(apigate.health && apigate.health.latencyMs) || 0} ms`
+                : 'MVNO API at APIGATE_URL'}
+            </div>
+          </div>
         </div>
 
         {/* Content Grids */}
@@ -139,6 +177,17 @@ class OverviewContainer extends Component {
                 </svg>
                 <span>Manage Security & Accounts</span>
               </button>
+
+              <button 
+                className="telebey-btn telebey-btn-secondary" 
+                style={{ justifyContent: 'flex-start', padding: '0.75rem 1rem' }}
+                onClick={() => SidebarActions.selectView('apigate')}
+              >
+                <svg style={{ width: '1.25rem', height: '1.25rem' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                <span>Open ApiGate Gateway</span>
+              </button>
             </div>
           </div>
 
@@ -158,6 +207,12 @@ class OverviewContainer extends Component {
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.9rem' }}>
                 <span style={{ color: '#64748b' }}>Database Status:</span>
                 <span className="telebey-badge telebey-badge-success">MongoDB Connected</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.9rem' }}>
+                <span style={{ color: '#64748b' }}>ApiGate Gateway:</span>
+                <span className={`telebey-badge ${apigateConnected ? 'telebey-badge-success' : 'telebey-badge-warning'}`}>
+                  {apigate ? (apigateConnected ? 'Connected' : 'Unreachable') : 'Checking'}
+                </span>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.9rem' }}>
                 <span style={{ color: '#64748b' }}>Security Encryption:</span>

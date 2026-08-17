@@ -8,6 +8,7 @@ subprojects/usrsctp
 subprojects/.wraplock
 
 webui/.next
+webui/.env
 node_modules
 webui/node_modules
 build/

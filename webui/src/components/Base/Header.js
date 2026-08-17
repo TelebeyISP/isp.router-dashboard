@@ -1,10 +1,13 @@
 import PropTypes from 'prop-types';
 
-const Header = ({ onLogoutRequest }) => (
+const Header = ({ onLogoutRequest, apigateConnected }) => (
   <header className="telebey-header">
     <div className="telebey-header-status">
       <span className="telebey-status-dot"></span>
       <span>Connected to Telebey Open5GS Core</span>
+      <span className={`telebey-badge ${apigateConnected ? 'telebey-badge-success' : 'telebey-badge-warning'}`} style={{ marginLeft: '0.75rem' }}>
+        ApiGate {apigateConnected ? 'online' : 'offline'}
+      </span>
     </div>
     <div className="telebey-user-menu">
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
@@ -29,7 +32,8 @@ const Header = ({ onLogoutRequest }) => (
 );
 
 Header.propTypes = {
-  onLogoutRequest: PropTypes.func.isRequired
+  onLogoutRequest: PropTypes.func.isRequired,
+  apigateConnected: PropTypes.bool
 };
 
 export default Header;

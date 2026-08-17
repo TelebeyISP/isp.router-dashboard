@@ -1,0 +1,112 @@
+# Run the Telebey Open5GS router dashboard together with ApiGate.
+#
+#   git clone https://github.com/TelebeyISP/ApiGate.git ../ApiGate
+#   docker compose -f docker-compose.apigate.yml up --build
+#
+# Dashboard: http://localhost:9999  (admin / 1423 in development)
+# ApiGate:   http://localhost:4000/health
+# Swagger:   http://localhost:4000/api/docs
+
+services:
+  mongodb:
+    image: mongo:6.0
+    container_name: telebey-open5gs-mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+      - ./docs/assets/webui/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+    networks:
+      - telebey-core
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: telebey-apigate-postgres
+    environment:
+      POSTGRES_USER: telebey_user
+      POSTGRES_PASSWORD: telebey_pass
+      POSTGRES_DB: telebey_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U telebey_user -d telebey_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - telebey-core
+
+  redis:
+    image: redis:7-alpine
+    container_name: telebey-apigate-redis
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - telebey-core
+
+  webui:
+    build:
+      context: .
+      dockerfile: docker/webui/Dockerfile
+    image: telebey/open5gs-webui
+    container_name: telebey-router-dashboard
+    depends_on:
+      - mongodb
+    ports:
+      - "9999:9999"
+    environment:
+      DB_URI: mongodb://mongodb:27017/open5gs
+      HOSTNAME: 0.0.0.0
+      PORT: "9999"
+      APIGATE_URL: http://apigate:4000
+      WAIT_HOSTS: mongodb:27017
+    networks:
+      - telebey-core
+
+  apigate:
+    build:
+      context: ${APIGATE_PATH:-../ApiGate}/telebey-platform/apps/api
+      dockerfile: Dockerfile
+    image: telebey/apigate
+    container_name: telebey-apigate
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      mongodb:
+        condition: service_started
+    ports:
+      - "4000:4000"
+    environment:
+      NODE_ENV: production
+      PORT: "4000"
+      DB_HOST: postgres
+      DB_PORT: "5432"
+      DB_USER: telebey_user
+      DB_PASSWORD: telebey_pass
+      DB_NAME: telebey_db
+      DATABASE_URL: postgresql://telebey_user:telebey_pass@postgres:5432/telebey_db
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+      REDIS_URL: redis://redis:6379
+      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET:-telebey_access_secret_change_me}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:-telebey_refresh_secret_change_me}
+      OPEN5GS_MONGODB_URI: mongodb://mongodb:27017/open5gs
+    networks:
+      - telebey-core
+
+networks:
+  telebey-core:
+    driver: bridge
+
+volumes:
+  mongodb_data:
+  postgres_data:

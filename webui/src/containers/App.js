@@ -9,6 +9,7 @@ import withWidth, { SMALL } from 'helpers/with-width';
 import { Layout } from 'components';
 import Notification from 'containers/Notification';
 import Overview from 'containers/Overview';
+import ApiGate from 'containers/ApiGate';
 import * as Subscriber from 'containers/Subscriber';
 import * as Profile from 'containers/Profile';
 import * as Account from 'containers/Account';
@@ -41,6 +42,9 @@ class App extends Component {
       <Layout>
         <Layout.Container visible={view === "overview"}>
           <Overview session={session} />
+        </Layout.Container>
+        <Layout.Container visible={view === "apigate"}>
+          <ApiGate />
         </Layout.Container>
         <Layout.Container visible={view === "subscriber"}>
           <Subscriber.Collection/>
